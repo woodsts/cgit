@@ -49,6 +49,11 @@ ifeq ($(uname_O),Cygwin)
 	NEEDS_LIBICONV = YesPlease
 endif
 
+ifeq ($(uname_S),Darwin)
+	NEEDS_LIBICONV = YesPlease
+	CGIT_SCRIPT_PATH = /usr/local/apache2/htdocs/cgit
+endif
+
 #
 # Let the user override the above settings.
 #
