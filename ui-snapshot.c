@@ -70,6 +70,9 @@ static int make_snapshot(const struct cgit_snapshot_format *format,
 			 const char *filename)
 {
 	struct archiver_args args;
+	const unsigned char *commit_sha1;
+	time_t archive_time;
+	struct tree *tree;
 	struct commit *commit;
 	unsigned char sha1[20];
 
@@ -82,6 +85,14 @@ static int make_snapshot(const struct cgit_snapshot_format *format,
 		cgit_print_error(fmt("Not a commit reference: %s", hex));
 		return 1;
 	}
+
+	commit_sha1 = commit->object.sha1;
+	archive_time = commit->date;
+
+	tree = parse_tree_indirect(sha1);
+	if (tree == NULL)
+		cgit_print_error(fmt("Not a tree object: %s", sha1));
+
 	memset(&args, 0, sizeof(args));
 	if (prefix) {
 		args.base = fmt("%s/", prefix);
@@ -90,8 +101,10 @@ static int make_snapshot(const struct cgit_snapshot_format *format,
 		args.base = "";
 		args.baselen = 0;
 	}
-	args.tree = commit->tree;
-	args.time = commit->date;
+	args.tree = tree;
+	args.commit_sha1 = commit_sha1;
+	args.commit = commit;
+	args.time = archive_time;
 	args.compression_level = Z_DEFAULT_COMPRESSION;
 	ctx.page.mimetype = xstrdup(format->mimetype);
 	ctx.page.filename = xstrdup(filename);
