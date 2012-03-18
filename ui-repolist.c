@@ -110,7 +110,8 @@ void print_header(int columns)
 	html("<tr class='nohover'>");
 	print_sort_header("Name", "name");
 	print_sort_header("Description", "desc");
-	print_sort_header("Owner", "owner");
+	if (ctx.cfg.enable_index_owner)
+		print_sort_header("Owner", "owner");
 	print_sort_header("Idle", "idle");
 	if (ctx.cfg.enable_index_links)
 		html("<th class='left'>Links</th>");
@@ -273,8 +274,10 @@ void cgit_print_repolist()
 		html_ntxt(ctx.cfg.max_repodesc_len, ctx.repo->desc);
 		html_link_close();
 		html("</td><td>");
-		html_txt(ctx.repo->owner);
-		html("</td><td>");
+		if (ctx.cfg.enable_index_owner) {
+			html_txt(ctx.repo->owner);
+			html("</td><td>");
+		}
 		print_modtime(ctx.repo);
 		html("</td>");
 		if (ctx.cfg.enable_index_links) {
