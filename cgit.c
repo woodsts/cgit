@@ -169,6 +169,8 @@ void config_cb(const char *name, const char *value)
 		ctx.cfg.enable_http_clone = atoi(value);
 	else if (!strcmp(name, "enable-index-links"))
 		ctx.cfg.enable_index_links = atoi(value);
+	else if (!strcmp(name, "enable-index-owner"))
+		ctx.cfg.enable_index_owner = atoi(value);
 	else if (!strcmp(name, "enable-commit-graph"))
 		ctx.cfg.enable_commit_graph = atoi(value);
 	else if (!strcmp(name, "enable-log-filecount"))
@@ -338,6 +340,7 @@ static void prepare_context(struct cgit_context *ctx)
 	ctx->cfg.local_time = 0;
 	ctx->cfg.enable_gitweb_owner = 1;
 	ctx->cfg.enable_http_clone = 1;
+	ctx->cfg.enable_index_owner = 1;
 	ctx->cfg.enable_tree_linenumbers = 1;
 	ctx->cfg.max_repo_count = 50;
 	ctx->cfg.max_commit_count = 50;
