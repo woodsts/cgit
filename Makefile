@@ -2,13 +2,13 @@ all::
 
 CGIT_VERSION = v0.9.1
 CGIT_SCRIPT_NAME = cgit.cgi
-CGIT_SCRIPT_PATH = /var/www/htdocs/cgit
+CGIT_SCRIPT_PATH = /var/www/uwsgi/cgit/cgi
 CGIT_DATA_PATH = $(CGIT_SCRIPT_PATH)
-CGIT_CONFIG = /etc/cgitrc
-CACHE_ROOT = /var/cache/cgit
-prefix = /usr
-libdir = $(prefix)/lib
-filterdir = $(libdir)/cgit/filters
+CGIT_CONFIG = /var/www/uwsgi/cgit/cgitrc
+CACHE_ROOT = /var/www/uwsgi/cgit/cache
+prefix = /var/www/uwsgi/cgit
+libdir = $(prefix)
+filterdir = $(libdir)/filters
 docdir = $(prefix)/share/doc/cgit
 htmldir = $(docdir)
 pdfdir = $(docdir)
