@@ -163,6 +163,7 @@ struct cgit_query {
 	int show_all;
 	int context;
 	int ignorews;
+	int follow;
 	char *vpath;
 };
 
@@ -203,6 +204,7 @@ struct cgit_config {
 	int case_sensitive_sort;
 	int embedded;
 	int enable_filter_overrides;
+	int enable_follow_links;
 	int enable_http_clone;
 	int enable_index_links;
 	int enable_index_owner;

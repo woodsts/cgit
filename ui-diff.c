@@ -36,6 +36,7 @@ static struct fileinfo {
 
 static int use_ssdiff = 0;
 static struct diff_filepair *current_filepair;
+static const char *current_prefix;
 
 struct diff_filespec *cgit_get_current_old_file(void)
 {
@@ -132,11 +133,30 @@ static void count_diff_lines(char *line, int len)
 	}
 }
 
+static int show_filepair(struct diff_filepair *pair)
+{
+	/* Always show if we have no limiting prefix. */
+	if (!current_prefix)
+		return 1;
+
+	/* Show if either path in the pair begins with the prefix. */
+	if (!prefixcmp(pair->one->path, current_prefix) ||
+	    !prefixcmp(pair->two->path, current_prefix))
+		return 1;
+
+	/* Otherwise we don't want to show this filepair. */
+	return 0;
+}
+
 static void inspect_filepair(struct diff_filepair *pair)
 {
 	int binary = 0;
 	unsigned long old_size = 0;
 	unsigned long new_size = 0;
+
+	if (!show_filepair(pair))
+		return;
+
 	files++;
 	lines_added = 0;
 	lines_removed = 0;
@@ -279,6 +299,9 @@ static void filepair_cb(struct diff_filepair *pair)
 	int binary = 0;
 	linediff_fn print_line_fn = print_line;
 
+	if (!show_filepair(pair))
+		return;
+
 	current_filepair = pair;
 	if (use_ssdiff) {
 		cgit_ssdiff_header_begin();
@@ -363,6 +386,18 @@ void cgit_print_diff(const char *new_rev, const char *old_rev,
 	enum object_type type;
 	unsigned long size;
 	struct commit *commit, *commit2;
+
+	/*
+	 * If "follow" is set then the diff machinery needs to examine the
+	 * entire commit to detect renames so we must limit the paths in our
+	 * own callbacks and not pass the prefix to the diff machinery.
+	 */
+	if (ctx.qry.follow && ctx.cfg.enable_follow_links) {
+		current_prefix = prefix;
+		prefix = "";
+	} else {
+		current_prefix = NULL;
+	}
 
 	if (!new_rev)
 		new_rev = ctx.qry.head;

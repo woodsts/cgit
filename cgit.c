@@ -171,6 +171,8 @@ static void config_cb(const char *name, const char *value)
 		ctx.cfg.snapshots = cgit_parse_snapshots_mask(value);
 	else if (!strcmp(name, "enable-filter-overrides"))
 		ctx.cfg.enable_filter_overrides = atoi(value);
+	else if (!strcmp(name, "enable-follow-links"))
+		ctx.cfg.enable_follow_links = atoi(value);
 	else if (!strcmp(name, "enable-http-clone"))
 		ctx.cfg.enable_http_clone = atoi(value);
 	else if (!strcmp(name, "enable-index-links"))
@@ -338,6 +340,8 @@ static void querystring_cb(const char *name, const char *value)
 		ctx.qry.context = atoi(value);
 	} else if (!strcmp(name, "ignorews")) {
 		ctx.qry.ignorews = atoi(value);
+	} else if (!strcmp(name, "follow")) {
+		ctx.qry.follow = atoi(value);
 	}
 }
 
