@@ -63,6 +63,8 @@ extern void cgit_print_age(time_t t, time_t max_relative, const char *format);
 extern void cgit_print_http_headers(void);
 extern void cgit_print_docstart(void);
 extern void cgit_print_docend();
+__attribute__((format (printf,3,4)))
+extern void cgit_print_error_page(int code, const char *msg, const char *fmt, ...);
 extern void cgit_print_pageheader(void);
 extern void cgit_print_filemode(unsigned short mode);
 extern void cgit_print_snapshot_links(const char *repo, const char *head,
