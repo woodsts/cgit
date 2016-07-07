@@ -154,6 +154,14 @@ div#cgit table.list tr.nohover:hover {
 	background: white;
 }
 
+div#cgit table.list tr.nohover-highlight:hover:nth-child(even) {
+	background: #f7f7f7;
+}
+
+div#cgit table.list tr.nohover-highlight:hover:nth-child(odd) {
+	background: white;
+}
+
 div#cgit table.list th {
 	font-weight: bold;
 	/* color: #888;
