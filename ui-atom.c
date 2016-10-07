@@ -140,9 +140,6 @@ void cgit_print_atom(char *tip, char *path, int max_count)
 	}
 	while ((commit = get_revision(&rev)) != NULL) {
 		add_entry(commit, host);
-		free_commit_buffer(commit);
-		free_commit_list(commit->parents);
-		commit->parents = NULL;
 	}
 	html("</feed>\n");
 	free(host);
