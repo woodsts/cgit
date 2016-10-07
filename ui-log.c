@@ -484,9 +484,6 @@ void cgit_print_log(const char *tip, int ofs, int cnt, char *grep, char *pattern
 	for (i = 0; i < ofs && (commit = get_revision(&rev)) != NULL; /* nop */) {
 		if (show_commit(commit, &rev))
 			i++;
-		free_commit_buffer(commit);
-		free_commit_list(commit->parents);
-		commit->parents = NULL;
 	}
 
 	for (i = 0; i < cnt && (commit = get_revision(&rev)) != NULL; /* nop */) {
@@ -506,9 +503,6 @@ void cgit_print_log(const char *tip, int ofs, int cnt, char *grep, char *pattern
 			i++;
 			print_commit(commit, &rev);
 		}
-		free_commit_buffer(commit);
-		free_commit_list(commit->parents);
-		commit->parents = NULL;
 	}
 	if (pager) {
 		html("</table><ul class='pager'>");
