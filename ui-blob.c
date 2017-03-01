@@ -33,7 +33,7 @@ static int walk_tree(const unsigned char *sha1, struct strbuf *base,
 	return 0;
 }
 
-int cgit_ref_path_exists(const char *path, const char *ref, int file_only)
+int cgit_ref_path_exists(char *path, const char *ref, int file_only)
 {
 	struct object_id oid;
 	unsigned long size;

@@ -355,10 +355,10 @@ extern int cgit_diff_files(const struct object_id *old_oid,
 
 extern void cgit_diff_tree(const struct object_id *old_oid,
 			   const struct object_id *new_oid,
-			   filepair_fn fn, const char *prefix, int ignorews);
+			   filepair_fn fn, char *prefix, int ignorews);
 
 extern void cgit_diff_commit(struct commit *commit, filepair_fn fn,
-			     const char *prefix);
+			     char *prefix);
 
 __attribute__((format (printf,1,2)))
 extern char *fmt(const char *format,...);

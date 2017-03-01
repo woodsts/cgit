@@ -336,7 +336,7 @@ int cgit_diff_files(const struct object_id *old_oid,
 
 void cgit_diff_tree(const struct object_id *old_oid,
 		    const struct object_id *new_oid,
-		    filepair_fn fn, const char *prefix, int ignorews)
+		    filepair_fn fn, char *prefix, int ignorews)
 {
 	struct diff_options opt;
 	struct pathspec_item item;
@@ -367,7 +367,7 @@ void cgit_diff_tree(const struct object_id *old_oid,
 	diff_flush(&opt);
 }
 
-void cgit_diff_commit(struct commit *commit, filepair_fn fn, const char *prefix)
+void cgit_diff_commit(struct commit *commit, filepair_fn fn, char *prefix)
 {
 	const struct object_id *old_oid = NULL;
 

@@ -189,7 +189,7 @@ static void inspect_filepair(struct diff_filepair *pair)
 
 static void cgit_print_diffstat(const struct object_id *old_oid,
 				const struct object_id *new_oid,
-				const char *prefix)
+				char *prefix)
 {
 	int i;
 
@@ -382,7 +382,7 @@ void cgit_print_diff_ctrls(void)
 }
 
 void cgit_print_diff(const char *new_rev, const char *old_rev,
-		     const char *prefix, int show_ctrls, int raw)
+		     char *prefix, int show_ctrls, int raw)
 {
 	struct commit *commit, *commit2;
 	const unsigned char *old_tree_sha1, *new_tree_sha1;
