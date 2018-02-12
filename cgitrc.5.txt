@@ -501,6 +501,10 @@ repo.defbranch::
 repo.desc::
 	The value to show as repository description. Default value: none.
 
+repo.extra-head-content::
+	This value will be added verbatim to the head section of each page
+	displayed for this repo. Default value: none.
+
 repo.homepage::
 	The value to show as repository homepage. Default value: none.
 
