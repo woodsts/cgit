@@ -1114,7 +1114,7 @@ void cgit_compose_snapshot_prefix(struct strbuf *filename, const char *base,
 void cgit_print_snapshot_links(const struct cgit_repo *repo, const char *ref,
 			       const char *separator)
 {
-	const struct cgit_snapshot_format* f;
+	const struct cgit_snapshot_format *f, *f_tar;
 	struct strbuf filename = STRBUF_INIT;
 	const char *basename;
 	size_t prefixlen;
@@ -1124,6 +1124,9 @@ void cgit_print_snapshot_links(const struct cgit_repo *repo, const char *ref,
 		strbuf_addstr(&filename, ref);
 	else
 		cgit_compose_snapshot_prefix(&filename, basename, ref);
+
+	for (f_tar = cgit_snapshot_formats; strcmp(f_tar->suffix, ".tar") != 0; f_tar++)
+		/* nothing */ ;
 
 	prefixlen = filename.len;
 	for (f = cgit_snapshot_formats; f->suffix; f++) {
@@ -1135,6 +1138,13 @@ void cgit_print_snapshot_links(const struct cgit_repo *repo, const char *ref,
 				   filename.buf);
 		if (cgit_snapshot_get_sig(ref, f)) {
 			strbuf_addstr(&filename, ".asc");
+			html(" (");
+			cgit_snapshot_link("sig", NULL, NULL, NULL, NULL,
+					   filename.buf);
+			html(")");
+		} else if (starts_with(f->suffix, ".tar") && cgit_snapshot_get_sig(ref, f_tar)) {
+			strbuf_setlen(&filename, strlen(filename.buf) - strlen(f->suffix));
+			strbuf_addstr(&filename, ".tar.asc");
 			html(" (");
 			cgit_snapshot_link("sig", NULL, NULL, NULL, NULL,
 					   filename.buf);
