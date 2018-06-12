@@ -480,7 +480,7 @@ static char *expand_macro(char *name, int maxlength)
 		len = strlen(value);
 		if (len > maxlength)
 			len = maxlength;
-		strncpy(name, value, len);
+		memcpy(name, value, len);
 	}
 	return name + len;
 }

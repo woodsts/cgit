@@ -129,11 +129,12 @@ char *cgit_pageurl(const char *reponame, const char *pagename,
 const char *cgit_repobasename(const char *reponame)
 {
 	/* I assume we don't need to store more than one repo basename */
-	static char rvbuf[1024];
+	static char rvbuf[1025];
 	int p;
 	const char *rv;
-	strncpy(rvbuf, reponame, sizeof(rvbuf));
-	if (rvbuf[sizeof(rvbuf)-1])
+
+	strncpy(rvbuf, reponame, sizeof(rvbuf) - 1);
+	if (rvbuf[sizeof(rvbuf) - 2])
 		die("cgit_repobasename: truncated repository name '%s'", reponame);
 	p = strlen(rvbuf)-1;
 	/* strip trailing slashes */
