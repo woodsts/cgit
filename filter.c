@@ -434,6 +434,7 @@ struct cgit_filter *cgit_new_filter(const char *cmd, filter_type filtertype)
 
 		case SOURCE:
 		case ABOUT:
+		case RENDER:
 			argument_count = 1;
 			break;
 

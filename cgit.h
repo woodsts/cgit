@@ -55,7 +55,7 @@ typedef enum {
 } diff_type;
 
 typedef enum {
-	ABOUT, COMMIT, SOURCE, EMAIL, AUTH, OWNER
+	ABOUT, COMMIT, SOURCE, EMAIL, AUTH, OWNER, RENDER
 } filter_type;
 
 struct cgit_filter {
@@ -261,6 +261,7 @@ struct cgit_config {
 	int branch_sort;
 	int commit_sort;
 	struct string_list mimetypes;
+	struct string_list render_filters;
 	struct cgit_filter *about_filter;
 	struct cgit_filter *commit_filter;
 	struct cgit_filter *source_filter;
@@ -389,5 +390,6 @@ extern int readfile(const char *path, char **buf, size_t *size);
 extern char *expand_macros(const char *txt);
 
 extern char *get_mimetype_for_filename(const char *filename);
+extern struct cgit_filter *get_render_for_filename(const char *filename);
 
 #endif /* CGIT_H */

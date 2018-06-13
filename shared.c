@@ -571,3 +571,24 @@ char *get_mimetype_for_filename(const char *filename)
 	fclose(file);
 	return NULL;
 }
+
+struct cgit_filter *get_render_for_filename(const char *filename)
+{
+	char *ext;
+	struct string_list_item *item;
+
+	if (!filename)
+		return NULL;
+
+	ext = strrchr(filename, '.');
+	if (!ext)
+		return NULL;
+	++ext;
+	if (!ext[0])
+		return NULL;
+	item = string_list_lookup(&ctx.cfg.render_filters, ext);
+	if (item)
+		return item->util;
+
+	return NULL;
+}
