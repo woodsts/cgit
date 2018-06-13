@@ -1,6 +1,6 @@
 /* ui-tree.c: functions for tree output
  *
- * Copyright (C) 2006-2017 cgit Development Team <cgit@lists.zx2c4.com>
+ * Copyright (C) 2006-2018 cgit Development Team <cgit@lists.zx2c4.com>
  *
  * Licensed under GNU General Public License v2
  *   (see COPYING for full license text)
@@ -11,12 +11,57 @@
 #include "html.h"
 #include "ui-shared.h"
 
+struct file_list {
+	struct object_id oid;
+	struct file_list *next;
+	const char *path;
+};
+
 struct walk_tree_context {
 	char *curr_rev;
 	char *match_path;
+	struct file_list *render_list;
 	int state;
 	bool use_render;
 };
+
+static void
+walk_tree_cleanup(struct walk_tree_context *wt)
+{
+	struct file_list *f = wt->render_list;
+
+	free(wt->curr_rev);
+
+	while (f) {
+		struct file_list *tmp = f->next;
+
+		free((void *)f->path);
+		free(f);
+		f = tmp;
+	}
+}
+
+static int
+walk_tree_render_list_add(struct walk_tree_context *wt, const char *path,
+			  const unsigned char *sha1)
+{
+	struct file_list *f = xmalloc(sizeof(*f));
+
+	if (!f)
+		return 1;
+
+	f->next = wt->render_list;
+	f->path = xstrdup(path);
+	if (!f->path) {
+		free(f);
+
+		return 1;
+	}
+	memcpy(f->oid.hash, sha1, sizeof(f->oid.hash));
+	wt->render_list = f;
+
+	return 0;
+}
 
 static void print_text_buffer(const char *name, char *buf, unsigned long size)
 {
@@ -327,12 +372,21 @@ static int ls_item(const unsigned char *sha1, struct strbuf *base,
 		write_tree_link(sha1, name, walk_tree_ctx->curr_rev,
 				&fullpath);
 	} else {
+		struct string_list_item *entry;
 		char *ext = strrchr(name, '.');
+
 		strbuf_addstr(&class, "ls-blob");
 		if (ext)
 			strbuf_addf(&class, " %s", ext + 1);
+
 		cgit_tree_link(name, NULL, class.buf, ctx.qry.head,
 			       walk_tree_ctx->curr_rev, fullpath.buf);
+
+		for_each_string_list_item(entry, &ctx.cfg.tree_readme) {
+			if (!strcmp(name, entry->string))
+				walk_tree_render_list_add(walk_tree_ctx,
+							  pathname, sha1);
+		}
 	}
 	htmlf("</td><td class='ls-size'>%li</td>", size);
 
@@ -370,7 +424,24 @@ static void ls_head(void)
 
 static void ls_tail(struct walk_tree_context *walk_tree_ctx)
 {
+	struct file_list *f = walk_tree_ctx->render_list;
+	enum object_type type;
+	unsigned long size;
+
 	html("</table>\n");
+
+	while (f) {
+		/* create a vertical gap between tree nav / renders */
+		html("<table><tr><td>&nbsp;</td></tr></table>");
+
+		type = sha1_object_info(f->oid.hash, &size);
+		if (type != OBJ_BAD)
+			print_object(f->oid.hash, (char *)f->path,
+				     "", walk_tree_ctx->curr_rev, 1, 1);
+
+		f = f->next;
+	}
+
 	cgit_print_layout_end();
 }
 
@@ -444,7 +515,9 @@ void cgit_print_tree(const char *rev, char *path, bool use_render)
 		.items = &path_items
 	};
 	struct walk_tree_context walk_tree_ctx = {
+		.curr_rev = NULL,
 		.match_path = path,
+		.render_list = NULL,
 		.state = 0,
 		.use_render = use_render,
 	};
@@ -480,5 +553,5 @@ void cgit_print_tree(const char *rev, char *path, bool use_render)
 		cgit_print_error_page(404, "Not found", "Path not found");
 
 cleanup:
-	free(walk_tree_ctx.curr_rev);
+	walk_tree_cleanup(&walk_tree_ctx);
 }
