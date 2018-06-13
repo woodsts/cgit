@@ -84,6 +84,20 @@ static void print_binary_buffer(char *buf, unsigned long size)
 	html("</table>\n");
 }
 
+static void print_buffer(const char *basename, char *buf, unsigned long size)
+{
+	if (ctx.cfg.max_blob_size && size / 1024 > ctx.cfg.max_blob_size) {
+		htmlf("<div class='error'>blob size (%ldKB) exceeds display size limit (%dKB).</div>",
+				size / 1024, ctx.cfg.max_blob_size);
+		return;
+	}
+
+	if (buffer_is_binary(buf, size))
+		print_binary_buffer(buf, size);
+	else
+		print_text_buffer(basename, buf, size);
+}
+
 static void print_object(const unsigned char *sha1, char *path, const char *basename, const char *rev)
 {
 	enum object_type type;
@@ -117,16 +131,7 @@ static void print_object(const unsigned char *sha1, char *path, const char *base
 	}
 	html(")\n");
 
-	if (ctx.cfg.max_blob_size && size / 1024 > ctx.cfg.max_blob_size) {
-		htmlf("<div class='error'>blob size (%ldKB) exceeds display size limit (%dKB).</div>",
-				size / 1024, ctx.cfg.max_blob_size);
-		return;
-	}
-
-	if (buffer_is_binary(buf, size))
-		print_binary_buffer(buf, size);
-	else
-		print_text_buffer(basename, buf, size);
+	print_buffer(basename, buf, size);
 }
 
 struct single_tree_ctx {
