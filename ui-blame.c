@@ -206,6 +206,9 @@ static void print_object(const unsigned char *sha1, const char *path,
 	} else {
 		html_txt(buf);
 	}
+
+	free(buf);
+
 	html("</code></pre>");
 
 	html("</div></td>\n");
