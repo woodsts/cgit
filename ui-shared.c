@@ -298,6 +298,12 @@ void cgit_tree_link(const char *name, const char *title, const char *class,
 	reporevlink("tree", name, title, class, head, rev, path);
 }
 
+void cgit_source_link(const char *name, const char *title, const char *class,
+		    const char *head, const char *rev, const char *path)
+{
+	reporevlink("source", name, title, class, head, rev, path);
+}
+
 void cgit_plain_link(const char *name, const char *title, const char *class,
 		     const char *head, const char *rev, const char *path)
 {
@@ -480,6 +486,10 @@ static void cgit_self_link(char *name, const char *title, const char *class)
 		cgit_tree_link(name, title, class, ctx.qry.head,
 			       ctx.qry.has_sha1 ? ctx.qry.sha1 : NULL,
 			       ctx.qry.path);
+	else if (!strcmp(ctx.qry.page, "source"))
+		cgit_source_link(name, title, class, ctx.qry.head,
+				 ctx.qry.has_sha1 ? ctx.qry.sha1 : NULL,
+				 ctx.qry.path);
 	else if (!strcmp(ctx.qry.page, "plain"))
 		cgit_plain_link(name, title, class, ctx.qry.head,
 				ctx.qry.has_sha1 ? ctx.qry.sha1 : NULL,
