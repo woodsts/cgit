@@ -158,7 +158,7 @@ static void include_file(const unsigned char *sha1, const char *path,
 }
 
 static void print_object(const unsigned char *sha1, char *path, const char *basename,
-			 const char *rev, bool use_render)
+			 const char *rev, bool use_render, bool is_inline)
 {
 	enum object_type type;
 	struct cgit_filter *render;
@@ -191,7 +191,8 @@ static void print_object(const unsigned char *sha1, char *path, const char *base
 	if (!render && !mimetype)
 		use_render = false;
 
-	cgit_print_layout_start();
+	if (!is_inline)
+		cgit_print_layout_start();
 	htmlf("blob: %s (", sha1_to_hex(sha1));
 	cgit_plain_link("plain", NULL, NULL, ctx.qry.head,
 		        rev, path);
@@ -415,7 +416,7 @@ static int walk_tree(const unsigned char *sha1, struct strbuf *base,
 		} else {
 			walk_tree_ctx->state = 2;
 			print_object(sha1, buffer.buf, pathname, walk_tree_ctx->curr_rev,
-				     walk_tree_ctx->use_render);
+				     walk_tree_ctx->use_render, 0);
 			strbuf_release(&buffer);
 
 			return 0;
