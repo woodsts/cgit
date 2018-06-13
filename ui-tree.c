@@ -222,6 +222,7 @@ static void print_object(const unsigned char *sha1, char *path, const char *base
 	}
 
 	free(mimetype);
+	free(buf);
 }
 
 struct single_tree_ctx {
