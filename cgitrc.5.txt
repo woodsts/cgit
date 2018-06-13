@@ -469,6 +469,13 @@ strict-export::
 	repositories to match those exported by git-daemon. This option must
 	be defined prior to scan-path.
 
+tree-readme::
+	Append given filename to the list of filenames to be rendered after the
+	tree navigation in tree view, if present in the directory being viewed.  Eg,
+	'tree-readme=README.md'.  There must also be a corresponding render.
+	entry for the readme suffix, eg,
+	'render.md=/usr/libexec/cgit/filters/html-converters/md2html'
+
 virtual-root::
 	Url which, if specified, will be used as root for all cgit links. It
 	will also cause cgit to generate 'virtual urls', i.e. urls like
