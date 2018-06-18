@@ -544,6 +544,16 @@ repo.ignore::
 	is not shown in the index and cannot be accessed by providing a direct
 	path. Default value: "0". See also: "repo.hide".
 
+repo.inline-readme::
+	Append given filename to the list of filenames to be rendered after the
+	tree navigation in tree view, if present in the directory being viewed.  Eg,
+	'repo.inline-readme=README.md'.  You may also want a corresponding render.
+	entry for the readme suffix, eg,
+	'render.md=/usr/libexec/cgit/filters/html-converters/md2html'.
+	If not given, the repo will use any global 'inline-readme=' configuration;
+	if any 'repo.inline-readme' are given only they are used for that repo,
+	and the global 'inline-readme=' list is ignored for that repo.
+
 repo.logo::
 	Url which specifies the source of an image which will be used as a logo
 	on this repo's pages. Default value: global logo.

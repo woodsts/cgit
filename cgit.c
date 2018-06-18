@@ -105,7 +105,12 @@ static void repo_config(struct cgit_repo *repo, const char *name, const char *va
 		repo->hide = atoi(value);
 	else if (!strcmp(name, "ignore"))
 		repo->ignore = atoi(value);
-	else if (ctx.cfg.enable_filter_overrides) {
+	else if (!strcmp(name, "inline-readme")) {
+		if (repo->inline_readme.items == ctx.cfg.inline_readme.items)
+			string_list_init(&repo->inline_readme, 1);
+
+		string_list_append(&repo->inline_readme, value);
+	} else if (ctx.cfg.enable_filter_overrides) {
 		if (!strcmp(name, "about-filter"))
 			repo->about_filter = cgit_new_filter(value, ABOUT);
 		else if (!strcmp(name, "commit-filter"))

@@ -77,6 +77,8 @@ struct cgit_repo *cgit_add_repo(const char *url)
 	ret->clone_url = ctx.cfg.clone_url;
 	ret->submodules.strdup_strings = 1;
 	ret->hide = ret->ignore = 0;
+	ret->inline_readme = ctx.cfg.inline_readme;
+
 	return ret;
 }
 
