@@ -1,6 +1,6 @@
 /* cgit.c: cgi for the git scm
  *
- * Copyright (C) 2006-2014 cgit Development Team <cgit@lists.zx2c4.com>
+ * Copyright (C) 2006-2018 cgit Development Team <cgit@lists.zx2c4.com>
  *
  * Licensed under GNU General Public License v2
  *   (see COPYING for full license text)
@@ -297,6 +297,8 @@ static void config_cb(const char *name, const char *value)
 		add_mimetype(name + 9, value);
 	else if (starts_with(name, "render."))
 		add_render_filter(name + 7, value);
+	else if (!strcmp(name, "inline-readme"))
+		string_list_insert(&ctx.cfg.inline_readme, value);
 	else if (!strcmp(name, "include"))
 		parse_configfile(expand_macros(value), config_cb);
 }
@@ -430,6 +432,7 @@ static void prepare_context(void)
 	ctx.page.etag = NULL;
 	string_list_init(&ctx.cfg.mimetypes, 1);
 	string_list_init(&ctx.cfg.render_filters, 1);
+	string_list_init(&ctx.cfg.inline_readme, 1);
 	if (ctx.env.script_name)
 		ctx.cfg.script_name = xstrdup(ctx.env.script_name);
 	if (ctx.env.query_string)

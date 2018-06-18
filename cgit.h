@@ -261,6 +261,7 @@ struct cgit_config {
 	int branch_sort;
 	int commit_sort;
 	struct string_list mimetypes;
+	struct string_list inline_readme;
 	struct string_list render_filters;
 	struct cgit_filter *about_filter;
 	struct cgit_filter *commit_filter;

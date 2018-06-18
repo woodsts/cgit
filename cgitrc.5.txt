@@ -238,6 +238,16 @@ include::
 	Name of a configfile to include before the rest of the current config-
 	file is parsed. Default value: none. See also: "MACRO EXPANSION".
 
+inline-readme::
+	Append given filename to the list of filenames to be rendered after the
+	tree navigation in tree view, if present in the directory being viewed.  Eg,
+	'inline-readme=README.md'.  You may also want a corresponding render.
+	entry for the readme suffix, eg,
+	'render.md=/usr/libexec/cgit/filters/html-converters/md2html'.  Repos will
+	use the list defined with 'inline-readme' by default, however they can
+	individually also choose to ignore this global list, and create a
+	repo-specific list by using 'repo.inline-readme'.
+
 local-time::
 	Flag which, if set to "1", makes cgit print commit and tag times in the
 	servers timezone. Default value: "0".
