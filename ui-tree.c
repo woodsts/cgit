@@ -365,7 +365,7 @@ static void ls_head(void)
 	html("</tr>\n");
 }
 
-static void ls_tail(void)
+static void ls_tail(struct walk_tree_context *walk_tree_ctx)
 {
 	html("</table>\n");
 	cgit_print_layout_end();
@@ -387,7 +387,7 @@ static void ls_tree(const struct object_id *oid, char *path, struct walk_tree_co
 
 	ls_head();
 	read_tree_recursive(tree, "", 0, 1, &paths, ls_item, walk_tree_ctx);
-	ls_tail();
+	ls_tail(walk_tree_ctx);
 }
 
 
@@ -470,7 +470,7 @@ void cgit_print_tree(const char *rev, char *path, bool use_render)
 
 	read_tree_recursive(commit->maybe_tree, "", 0, 0, &paths, walk_tree, &walk_tree_ctx);
 	if (walk_tree_ctx.state == 1)
-		ls_tail();
+		ls_tail(&walk_tree_ctx);
 	else if (walk_tree_ctx.state == 2)
 		cgit_print_layout_end();
 	else
