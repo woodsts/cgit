@@ -1,6 +1,6 @@
 /* ui-tree.c: functions for tree output
  *
- * Copyright (C) 2006-2017 cgit Development Team <cgit@lists.zx2c4.com>
+ * Copyright (C) 2006-2018 cgit Development Team <cgit@lists.zx2c4.com>
  *
  * Licensed under GNU General Public License v2
  *   (see COPYING for full license text)
@@ -12,8 +12,10 @@
 #include "ui-shared.h"
 
 struct walk_tree_context {
+	struct object_id inline_oid;
 	char *curr_rev;
 	char *match_path;
+	char *inline_filename;
 	int state;
 	bool use_render;
 };
@@ -325,11 +327,19 @@ static int ls_item(const struct object_id *oid, struct strbuf *base,
 				&fullpath);
 	} else {
 		char *ext = strrchr(name, '.');
+
 		strbuf_addstr(&class, "ls-blob");
 		if (ext)
 			strbuf_addf(&class, " %s", ext + 1);
+
 		cgit_tree_link(name, NULL, class.buf, ctx.qry.head,
 			       walk_tree_ctx->curr_rev, fullpath.buf);
+
+		if (!walk_tree_ctx->inline_filename &&
+		    string_list_has_string(&ctx.repo->inline_readme, name)) {
+			walk_tree_ctx->inline_filename = xstrdup(pathname);
+			oidcpy(&walk_tree_ctx->inline_oid, oid);
+		}
 	}
 	htmlf("</td><td class='ls-size'>%li</td>", size);
 
@@ -367,7 +377,46 @@ static void ls_head(void)
 
 static void ls_tail(struct walk_tree_context *walk_tree_ctx)
 {
+	struct cgit_filter *render;
+	enum object_type type;
+	char *buf, *mimetype;
+	unsigned long size;
+
 	html("</table>\n");
+
+	if (!walk_tree_ctx->inline_filename)
+		goto done;
+
+	type = oid_object_info(the_repository, &walk_tree_ctx->inline_oid, &size);
+	if (type == OBJ_BAD)
+		goto done;
+
+	buf = read_object_file(&walk_tree_ctx->inline_oid, &type, &size);
+	if (!buf)
+		goto done;
+
+	/* create a vertical gap between tree nav / inline */
+	html("<table class=\"tabs\"><tr><td></td></tr></table>");
+
+	render = get_render_for_filename(walk_tree_ctx->inline_filename);
+	mimetype = render ? NULL : get_mimetype_for_filename(
+				walk_tree_ctx->inline_filename);
+
+	htmlf("<h2>%s</h2>", walk_tree_ctx->inline_filename);
+	html("<div class=blob>&nbsp;</div>\n");
+
+	if (render)
+		render_buffer(render, walk_tree_ctx->inline_filename,
+			      buf, size);
+	else if (mimetype)
+		include_file(walk_tree_ctx->inline_filename, mimetype);
+	else
+		print_buffer(walk_tree_ctx->inline_filename, buf, size);
+
+	free(mimetype);
+	free(buf);
+
+done:
 	cgit_print_layout_end();
 }
 
@@ -478,4 +527,6 @@ void cgit_print_tree(const char *rev, char *path, bool use_render)
 
 cleanup:
 	free(walk_tree_ctx.curr_rev);
+	if (walk_tree_ctx.inline_filename)
+		free(walk_tree_ctx.inline_filename);
 }
