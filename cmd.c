@@ -140,7 +140,7 @@ static void refs_fn(void)
 
 static void source_fn(void)
 {
-	cgit_print_tree(ctx.qry.sha1, ctx.qry.path);
+	cgit_print_tree(ctx.qry.sha1, ctx.qry.path, false);
 }
 
 static void snapshot_fn(void)
@@ -166,7 +166,7 @@ static void tag_fn(void)
 
 static void tree_fn(void)
 {
-	cgit_print_tree(ctx.qry.sha1, ctx.qry.path);
+	cgit_print_tree(ctx.qry.sha1, ctx.qry.path, true);
 }
 
 #define def_cmd(name, want_repo, want_vpath, is_clone) \

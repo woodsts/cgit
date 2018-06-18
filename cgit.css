@@ -282,6 +282,11 @@ div#cgit div#blob {
 	border: solid 1px black;
 }
 
+div#cgit iframe {
+	width: 100%;
+	height: 40em;
+}
+
 div#cgit div.error {
 	color: red;
 	font-weight: bold;

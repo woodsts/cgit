@@ -15,6 +15,7 @@ struct walk_tree_context {
 	char *curr_rev;
 	char *match_path;
 	int state;
+	bool use_render;
 };
 
 static void print_text_buffer(const char *name, char *buf, unsigned long size)
@@ -98,10 +99,69 @@ static void print_buffer(const char *basename, char *buf, unsigned long size)
 		print_text_buffer(basename, buf, size);
 }
 
-static void print_object(const struct object_id *oid, char *path, const char *basename, const char *rev)
+static void render_buffer(struct cgit_filter *render, const char *name,
+		char *buf, unsigned long size)
+{
+	char *filter_arg = xstrdup(name);
+
+	html("<div class='blob'>");
+	cgit_open_filter(render, filter_arg);
+	html_raw(buf, size);
+	cgit_close_filter(render);
+	html("</div>");
+
+	free(filter_arg);
+}
+
+static void include_file(const char *path, const char *mimetype)
+{
+	const char *delim = "?";
+
+	html("<div class='blob'>");
+
+	if (!strncmp(mimetype, "image/", 6)) {
+		html("<img alt='");
+		html_attr(path);
+		html("' src='");
+	} else {
+		html("<iframe sandbox='allow-scripts' src='");
+	}
+
+	if (ctx.cfg.virtual_root) {
+		html_url_path(ctx.cfg.virtual_root);
+		html_url_path(ctx.repo->url);
+		if (ctx.repo->url[strlen(ctx.repo->url) - 1] != '/')
+			html("/");
+		html("plain/");
+		html_url_path(path);
+	} else {
+		html_url_path(ctx.cfg.script_name);
+		html("?url=");
+		html_url_arg(ctx.repo->url);
+		if (ctx.repo->url[strlen(ctx.repo->url) - 1] != '/')
+			html("/");
+		html("plain/");
+		if (path)
+			html_url_arg(path);
+		delim = "&";
+	}
+	if (ctx.qry.head && ctx.repo->defbranch &&
+	    strcmp(ctx.qry.head, ctx.repo->defbranch)) {
+		html(delim);
+		html("h=");
+		html_url_arg(ctx.qry.head);
+		delim = "&";
+	}
+
+	html("'></div>");
+}
+
+static void print_object(const struct object_id *oid, char *path, const char *basename,
+			 const char *rev, bool use_render)
 {
 	enum object_type type;
-	char *buf;
+	struct cgit_filter *render;
+	char *buf, *mimetype;
 	unsigned long size;
 
 	type = oid_object_info(the_repository, oid, &size);
@@ -118,22 +178,49 @@ static void print_object(const struct object_id *oid, char *path, const char *ba
 		return;
 	}
 
+	render = get_render_for_filename(path);
+	mimetype = render ? NULL : get_mimetype_for_filename(path);
+
 	cgit_set_title_from_path(path);
+
+	/*
+	 * If we don't have a render filter or a mimetype, we won't include the
+	 * file in the page.
+	 */
+	if (!render && !mimetype)
+		use_render = false;
 
 	cgit_print_layout_start();
 	htmlf("blob: %s (", oid_to_hex(oid));
 	cgit_plain_link("plain", NULL, NULL, ctx.qry.head,
 		        rev, path);
+
 	if (ctx.cfg.enable_blame) {
 		html(") (");
 		cgit_blame_link("blame", NULL, NULL, ctx.qry.head,
 			        rev, path);
 	}
+	if (use_render) {
+		html(", ");
+		cgit_source_link("source", NULL, NULL, ctx.qry.head,
+				rev, path);
+	} else if (render || mimetype) {
+		html(", ");
+		cgit_tree_link("render", NULL, NULL, ctx.qry.head,
+			       rev, path);
+	}
 	html(")\n");
 
-	print_buffer(basename, buf, size);
-
+	if (use_render) {
+		if (render)
+			render_buffer(render, basename, buf, size);
+		else
+			include_file(path, mimetype);
+	} else
+		print_buffer(basename, buf, size);
+ 
 	free(buf);
+	free(mimetype);
 }
 
 struct single_tree_ctx {
@@ -325,8 +412,10 @@ static int walk_tree(const struct object_id *oid, struct strbuf *base,
 			return READ_TREE_RECURSIVE;
 		} else {
 			walk_tree_ctx->state = 2;
-			print_object(oid, buffer.buf, pathname, walk_tree_ctx->curr_rev);
+			print_object(oid, buffer.buf, pathname, walk_tree_ctx->curr_rev,
+				     walk_tree_ctx->use_render);
 			strbuf_release(&buffer);
+
 			return 0;
 		}
 	}
@@ -339,7 +428,7 @@ static int walk_tree(const struct object_id *oid, struct strbuf *base,
  *   rev:  the commit pointing at the root tree object
  *   path: path to tree or blob
  */
-void cgit_print_tree(const char *rev, char *path)
+void cgit_print_tree(const char *rev, char *path, bool use_render)
 {
 	struct object_id oid;
 	struct commit *commit;
@@ -353,7 +442,8 @@ void cgit_print_tree(const char *rev, char *path)
 	};
 	struct walk_tree_context walk_tree_ctx = {
 		.match_path = path,
-		.state = 0
+		.state = 0,
+		.use_render = use_render,
 	};
 
 	if (!rev)
