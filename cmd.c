@@ -138,6 +138,11 @@ static void refs_fn(void)
 	cgit_print_refs();
 }
 
+static void source_fn(void)
+{
+	cgit_print_tree(ctx.qry.sha1, ctx.qry.path);
+}
+
 static void snapshot_fn(void)
 {
 	cgit_print_snapshot(ctx.qry.head, ctx.qry.sha1, ctx.qry.path,
@@ -187,6 +192,7 @@ struct cgit_cmd *cgit_get_cmd(void)
 		def_cmd(refs, 1, 0, 0),
 		def_cmd(repolist, 0, 0, 0),
 		def_cmd(snapshot, 1, 0, 0),
+		def_cmd(source, 1, 1, 0),
 		def_cmd(stats, 1, 1, 0),
 		def_cmd(summary, 1, 0, 0),
 		def_cmd(tag, 1, 0, 0),
