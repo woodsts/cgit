@@ -2,7 +2,41 @@
 import markdown
 import sys
 import io
+from markdown.util import etree
 from pygments.formatters import HtmlFormatter
+from urllib.parse import urljoin
+
+
+class AssetMappingProcessor(markdown.treeprocessors.Treeprocessor):
+
+    def __init__(self, asset_prefix):
+        self.asset_prefix = asset_prefix
+
+    def run(self, root):
+        asset_prefix = self.asset_prefix
+        for img in root.iter('img'):
+            src = img.get('src')
+            if src is None:
+                continue
+            img.set('src', urljoin(asset_prefix, src))
+
+
+class AssetMappingExtension(markdown.extensions.Extension):
+
+    def __init__(self, **kwargs):
+        self.config = {'asset_prefix': ['', 'prefix for relative asset URLs']}
+        super(AssetMappingExtension, self).__init__(**kwargs)
+
+    def extendMarkdown(self, md, md_globals):
+        asset_prefix = self.getConfig('asset_prefix')
+        if not asset_prefix:
+            return
+
+        md.treeprocessors.add('asset_mapping',
+                              AssetMappingProcessor(asset_prefix),
+                              '_end')
+
+
 sys.stdin = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 sys.stdout.write('''
@@ -289,6 +323,20 @@ sys.stdout.write('''
 ''')
 sys.stdout.write("<div class='markdown-body'>")
 sys.stdout.flush()
+
+extensions = [
+    "markdown.extensions.fenced_code",
+    "markdown.extensions.codehilite",
+    "markdown.extensions.tables"
+]
+extension_configs = {
+    "markdown.extensions.codehilite":{"css_class":"highlight"}
+}
+
+if len(sys.argv) > 2:
+    extensions.append(AssetMappingExtension(asset_prefix=sys.argv[2]))
+
 # Note: you may want to run this through bleach for sanitization
-markdown.markdownFromFile(output_format="html5", extensions=["markdown.extensions.fenced_code", "markdown.extensions.codehilite", "markdown.extensions.tables"], extension_configs={"markdown.extensions.codehilite":{"css_class":"highlight"}})
+markdown.markdownFromFile(output_format="html5", extensions=extensions, extension_configs=extension_configs)
 sys.stdout.write("</div>")
+
