@@ -102,16 +102,21 @@ static void print_buffer(const char *basename, char *buf, unsigned long size)
 }
 
 static void render_buffer(struct cgit_filter *render, const char *name,
-		char *buf, unsigned long size)
+			  char *buf, unsigned long size)
 {
 	char *filter_arg = xstrdup(name);
+	struct strbuf sb_pre = STRBUF_INIT, sb_post = STRBUF_INIT;
+
+	cgit_repo_create_url(&sb_pre, &sb_post, "plain", ctx.qry.head, NULL);
 
 	html("<div class='blob'>");
-	cgit_open_filter(render, filter_arg);
+	cgit_open_filter(render, filter_arg, sb_pre.buf, sb_post.buf);
 	html_raw(buf, size);
 	cgit_close_filter(render);
 	html("</div>");
 
+	strbuf_release(&sb_pre);
+	strbuf_release(&sb_post);
 	free(filter_arg);
 }
 

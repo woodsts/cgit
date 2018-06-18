@@ -424,6 +424,10 @@ struct cgit_filter *cgit_new_filter(const char *cmd, filter_type filtertype)
 			argument_count = 12;
 			break;
 
+		case RENDER:
+			argument_count = 3;
+			break;
+
 		case EMAIL:
 			argument_count = 2;
 			break;
@@ -434,7 +438,6 @@ struct cgit_filter *cgit_new_filter(const char *cmd, filter_type filtertype)
 
 		case SOURCE:
 		case ABOUT:
-		case RENDER:
 			argument_count = 1;
 			break;
 

@@ -738,11 +738,17 @@ owner filter::
 	output.  The output is included in the Owner column.
 
 render filter::
-	This filter is given a single parameter: the filename of the source
-	file to render. The filter can use the filename to determine (for
-	example) the syntax highlighting mode. The contents of the file that
-	is to be rendered is available on standard input and the rendered
-	content is expected on standard output.
+	This filter is given a single required parameter: the filename of
+	the source file to render. The filter can use the filename to
+	determine (for example) the syntax highlighting mode. The
+	contents of the file that is to be rendered is available on standard
+	input and the rendered content is expected on standard output.  Two
+	additional optional parameters are the base URL path and optional
+	URL parameter arguments needed to adapt relative paths in the input
+	to absolute URLs pointing to the "plain" version of the file in the
+	repo rev context, eg, "/myvirt/reponame/plain" and "?h=mybranch"
+	could be used to convert input references like "pics/myfile.png" to
+	'<img src="/myvirt/reponame/plain/pics/myfile.png?h=mybranch">'
 
 source filter::
 	This filter is given a single parameter: the filename of the source
