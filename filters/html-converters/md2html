@@ -9,31 +9,35 @@ from urllib.parse import urljoin
 
 class AssetMappingProcessor(markdown.treeprocessors.Treeprocessor):
 
-    def __init__(self, asset_prefix):
+    def __init__(self, asset_prefix, asset_postfix):
         self.asset_prefix = asset_prefix
+        self.asset_postfix = asset_postfix
 
     def run(self, root):
         asset_prefix = self.asset_prefix
+        asset_postfix = self.asset_postfix
         for img in root.iter('img'):
             src = img.get('src')
             if src is None:
                 continue
-            img.set('src', urljoin(asset_prefix, src))
+            img.set('src', urljoin(urljoin(asset_prefix, src), asset_postfix))
 
 
 class AssetMappingExtension(markdown.extensions.Extension):
 
     def __init__(self, **kwargs):
-        self.config = {'asset_prefix': ['', 'prefix for relative asset URLs']}
+        self.config = {'asset_prefix':  ['', 'prefix for relative asset URLs'],
+                       'asset_postfix': ['', 'postfix for relative asset URLs']}
         super(AssetMappingExtension, self).__init__(**kwargs)
 
     def extendMarkdown(self, md, md_globals):
         asset_prefix = self.getConfig('asset_prefix')
-        if not asset_prefix:
+        asset_postfix = self.getConfig('asset_postfix')
+        if not (asset_prefix or asset_postfix):
             return
 
         md.treeprocessors.add('asset_mapping',
-                              AssetMappingProcessor(asset_prefix),
+                              AssetMappingProcessor(asset_prefix, asset_postfix),
                               '_end')
 
 
@@ -334,7 +338,10 @@ extension_configs = {
 }
 
 if len(sys.argv) > 2:
-    extensions.append(AssetMappingExtension(asset_prefix=sys.argv[2]))
+    args = {'asset_prefix': sys.argv[2]}
+    if len(sys.argv) > 3:
+        args['asset_postfix'] = sys.argv[3]
+    extensions.append(AssetMappingExtension(**args))
 
 # Note: you may want to run this through bleach for sanitization
 markdown.markdownFromFile(output_format="html5", extensions=extensions, extension_configs=extension_configs)
