@@ -342,6 +342,18 @@ renamelimit::
 	 "-1" uses the compiletime value in git (for further info, look at
 	  `man git-diff`). Default value: "-1".
 
+render.<ext>::
+	Specifies a command which will be invoked to render files with the
+	extension `.<ext>`. The command will get the blob content on its STDIN
+	and the name of the blob as its only command line argument. The STDOUT
+	from the command will be included verbatim in the page content. If no
+	render filter is available for a given file extension but the mimetype
+	is specified then the content will be included as an iframe, otherwise
+	the normal source rendering will be used.  Note <ext> may be empty, in
+	which case the render filter is used on files with no suffix.
++
+Default value: none. See also: "FILTER API".
+
 repository-sort::
 	The way in which repositories in each section are sorted. Valid values
 	are "name" for sorting by the repo name or "age" for sorting by the
@@ -704,6 +716,13 @@ owner filter::
 	This filter is given no arguments.  The owner text is available on
 	standard input and the filter is expected to write to standard
 	output.  The output is included in the Owner column.
+
+render filter::
+	This filter is given a single parameter: the filename of the source
+	file to render. The filter can use the filename to determine (for
+	example) the syntax highlighting mode. The contents of the file that
+	is to be rendered is available on standard input and the rendered
+	content is expected on standard output.
 
 source filter::
 	This filter is given a single parameter: the filename of the source
