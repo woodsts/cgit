@@ -59,6 +59,9 @@ extern void cgit_object_link(struct object *obj);
 
 extern void cgit_submodule_link(const char *class, char *path,
 				const char *rev);
+extern const char *cgit_repo_create_url(struct strbuf *sb, struct strbuf *sb_post,
+					 const char *page, const char *head,
+					 const char *path);
 
 extern void cgit_print_layout_start(void);
 extern void cgit_print_layout_end(void);

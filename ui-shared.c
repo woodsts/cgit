@@ -226,6 +226,38 @@ void cgit_index_link(const char *name, const char *title, const char *class,
 	site_link(NULL, name, title, class, pattern, sort, ofs, always_root);
 }
 
+const char *cgit_repo_create_url(struct strbuf *sb, struct strbuf *sb_post,
+				 const char *page, const char *head,
+				 const char *path)
+{
+	const char *delim = "?";
+
+	if (ctx.cfg.virtual_root) {
+		strbuf_addf(sb, "%s%s", ctx.cfg.virtual_root, ctx.repo->url);
+	} else {
+		strbuf_addstr(sb, ctx.cfg.script_name);
+		sb = sb_post;
+		strbuf_addf(sb, "?url=%s", ctx.repo->url);
+		delim = "&";
+	}
+
+	if (ctx.repo->url[strlen(ctx.repo->url) - 1] != '/')
+		strbuf_addch(sb, '/');
+
+	if (page) {
+		strbuf_addf(sb, "%s/", page);
+		if (path)
+			strbuf_addstr(sb, path);
+	}
+
+	if (head && ctx.repo->defbranch && strcmp(head, ctx.repo->defbranch)) {
+		strbuf_addf(sb_post, "%sh=%s", delim, head);
+		delim = "&";
+	}
+
+	return delim;
+}
+
 static char *repolink(const char *title, const char *class, const char *page,
 		      const char *head, const char *path)
 {
