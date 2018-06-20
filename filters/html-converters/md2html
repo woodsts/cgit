@@ -305,7 +305,7 @@ sys.stdout.write('''
     border: none;
     background: transparent;
 }
-.markdown-body .highlight pre, .markdown-body pre {
+.markdown-body .md2html_highlight pre, .markdown-body pre {
     background-color: #f8f8f8;
     border: 1px solid #ccc;
     font-size: 13px;
@@ -321,7 +321,7 @@ sys.stdout.write('''
     border: none;
 }
 ''')
-sys.stdout.write(HtmlFormatter(style='pastie').get_style_defs('.highlight'))
+sys.stdout.write(HtmlFormatter(style='pastie').get_style_defs('.md2html_highlight'))
 sys.stdout.write('''
 </style>   
 ''')
@@ -334,7 +334,7 @@ extensions = [
     "markdown.extensions.tables"
 ]
 extension_configs = {
-    "markdown.extensions.codehilite":{"css_class":"highlight"}
+    "markdown.extensions.codehilite":{"css_class":"md2html_highlight"}
 }
 
 if len(sys.argv) > 2:
