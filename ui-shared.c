@@ -969,6 +969,19 @@ static void cgit_print_path_crumbs(char *path)
 	ctx.qry.path = old_path;
 }
 
+static void print_branch_combo_form(void)
+{
+	html("<form method='get'>\n");
+	cgit_add_hidden_formfields(0, 1, ctx.qry.page);
+	html("<select name='h' onchange='this.form.submit();'>\n");
+	for_each_branch_ref(print_branch_option, ctx.qry.head);
+	if (ctx.repo->enable_remote_branches)
+		for_each_remote_ref(print_branch_option, ctx.qry.head);
+	html("</select> ");
+	html("<input type='submit' value='switch'/>");
+	html("</form>");
+}
+
 static void print_header(void)
 {
 	char *logo = NULL, *logo_link = NULL;
@@ -1002,15 +1015,7 @@ static void print_header(void)
 		cgit_summary_link(ctx.repo->name, ctx.repo->name, NULL, NULL);
 		if (ctx.env.authenticated) {
 			html("</td><td class='form'>");
-			html("<form method='get'>\n");
-			cgit_add_hidden_formfields(0, 1, ctx.qry.page);
-			html("<select name='h' onchange='this.form.submit();'>\n");
-			for_each_branch_ref(print_branch_option, ctx.qry.head);
-			if (ctx.repo->enable_remote_branches)
-				for_each_remote_ref(print_branch_option, ctx.qry.head);
-			html("</select> ");
-			html("<input type='submit' value='switch'/>");
-			html("</form>");
+			print_branch_combo_form();
 		}
 	} else
 		html_txt(ctx.cfg.root_title);
@@ -1034,8 +1039,15 @@ void cgit_print_pageheader(void)
 	if (!ctx.env.authenticated || !ctx.cfg.noheader)
 		print_header();
 
-	html("<table class='tabs'><tr><td>\n");
+	html("<table class='tabs'><tr>\n");
 	if (ctx.env.authenticated && ctx.repo) {
+		if (ctx.cfg.noheader) {
+			html("<td class='form' style='text-align:left'>");
+			print_branch_combo_form();
+			html("</td><td style='text-align:center'>");
+		}
+		html("<td>");
+
 		if (ctx.repo->readme.nr)
 			reporevlink("about", "about", NULL,
 				    hc("about"), ctx.qry.head, NULL,
@@ -1092,6 +1104,8 @@ void cgit_print_pageheader(void)
 		html("</form>\n");
 	} else if (ctx.env.authenticated) {
 		char *currenturl = cgit_currenturl();
+
+		html("<td>");
 		site_link(NULL, "index", NULL, hc("repolist"), NULL, NULL, 0, 1);
 		if (ctx.cfg.root_readme)
 			site_link("about", "about", NULL, hc("about"),
