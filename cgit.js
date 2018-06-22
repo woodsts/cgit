@@ -57,7 +57,7 @@ function line_range_highlight()
 	if (l2 < l1)
 		l2 = l1;
 
-	var lh, etable, etr, de, n;
+	var lh, etable, etr, de, n, hl, v;
 
 	e = document.getElementById('n' + l1);
 	if (!e)
@@ -94,7 +94,18 @@ function line_range_highlight()
 	while (n <= l2)
 		document.getElementById('n' + n++).style.backgroundColor = "yellow";
 
-	e.scrollIntoView(true);
+	hl = (window.innerHeight / (e.offsetHeight + 1));
+	v = (l1 + ((l2 - l1) / 2)) - (hl / 2);
+	if (v > l1)
+		v = l1;
+	if (v < 1)
+		v = 1;
+
+	t = document.getElementById('n' + Math.round(v));
+	if (!t)
+		t = e;
+
+	t.scrollIntoView(true);
 }
 
 /* we have to use load, because header images can push the layout vertically */
