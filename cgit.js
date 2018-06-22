@@ -33,6 +33,18 @@ function line_range_highlight()
 {
 	var h = window.location.hash, l1 = 0, l2 = 0, e, t;
 
+	e = document.getElementById("cgit-line-range");
+	if (e) {
+		l1 = e.l1;
+		while (l1 <= e.l2) {
+			var e1;
+			e1 = document.getElementById('n' + l1++);
+			e1.style.backgroundColor = null;
+		}
+
+		e.remove();
+	}
+
 	l1 = parseInt(h.substring(2));
 	if (!l1)
 		return;
@@ -56,6 +68,7 @@ function line_range_highlight()
 	de.className = "selected-lines";
 	de.style.bottom = e.style.bottom;
 	de.style.top = collect_offsetTop(e) + 'px';
+	de.id = "cgit-line-range";
 	de.l1 = l1;
 	de.l2 = l2;
 
@@ -86,6 +99,10 @@ function line_range_highlight()
 
 /* we have to use load, because header images can push the layout vertically */
 window.addEventListener("load", function() {
+	line_range_highlight();
+}, false);
+
+window.addEventListener("hashchange", function() {
 	line_range_highlight();
 }, false);
 
