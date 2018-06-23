@@ -248,6 +248,11 @@ inline-readme::
 	individually also choose to ignore this global list, and create a
 	repo-specific list by using 'repo.inline-readme'.
 
+js::
+	Url which specifies the javascript script document to include in all cgit
+	pages.  Default value: "/cgit.js".  Setting this to an empty string will
+	disable generation of the link to this file in the head section.
+
 local-time::
 	Flag which, if set to "1", makes cgit print commit and tag times in the
 	servers timezone. Default value: "0".

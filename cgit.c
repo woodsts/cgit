@@ -146,6 +146,8 @@ static void config_cb(const char *name, const char *value)
 		ctx.cfg.root_readme = xstrdup(value);
 	else if (!strcmp(name, "css"))
 		ctx.cfg.css = xstrdup(value);
+	else if (!strcmp(name, "js"))
+		ctx.cfg.js = xstrdup(value);
 	else if (!strcmp(name, "favicon"))
 		ctx.cfg.favicon = xstrdup(value);
 	else if (!strcmp(name, "footer"))
@@ -384,6 +386,7 @@ static void prepare_context(void)
 	ctx.cfg.branch_sort = 0;
 	ctx.cfg.commit_sort = 0;
 	ctx.cfg.css = "/cgit.css";
+	ctx.cfg.js = "/cgit.js";
 	ctx.cfg.logo = "/cgit.png";
 	ctx.cfg.favicon = "/favicon.ico";
 	ctx.cfg.local_time = 0;

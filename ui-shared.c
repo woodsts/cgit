@@ -798,6 +798,11 @@ void cgit_print_docstart(void)
 	html("<link rel='stylesheet' type='text/css' href='");
 	html_attr(ctx.cfg.css);
 	html("'/>\n");
+	if (*ctx.cfg.js) {
+		html("<script type='text/javascript' src='");
+		html_attr(ctx.cfg.js);
+		html("'></script>\n");
+	}
 	if (ctx.cfg.favicon) {
 		html("<link rel='shortcut icon' href='");
 		html_attr(ctx.cfg.favicon);
