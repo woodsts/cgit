@@ -1028,12 +1028,19 @@ static void print_header(void)
 
 	html("<tr><td class='sub'>");
 	if (ctx.repo) {
-		html_txt(ctx.repo->desc);
+		if (ctx.repo->desc &&
+		    (ctx.repo->desc != cgit_default_repo_desc ||
+		     !ctx.repo->desc_html))
+			html_txt(ctx.repo->desc);
+		if (ctx.repo->desc_html)
+			html(ctx.repo->desc_html);
 		html("</td><td class='sub right'>");
 		html_txt(ctx.repo->owner);
 	} else {
 		if (ctx.cfg.root_desc)
 			html_txt(ctx.cfg.root_desc);
+		if (ctx.cfg.root_desc_html)
+			html(ctx.cfg.root_desc_html);
 	}
 	html("</td></tr></table>\n");
 }

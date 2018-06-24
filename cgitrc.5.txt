@@ -383,6 +383,10 @@ root-desc::
 	Text printed below the heading on the repository index page. Default
 	value: "a fast webinterface for the git dscm".
 
+root-desc-html::
+	Optional additional raw html to show in the header after root-desc.
+	Default value: none.
+
 root-readme::
 	The content of the file specified with this option will be included
 	verbatim below the "about" link on the repository index page. Default
@@ -507,6 +511,14 @@ repo.defbranch::
 
 repo.desc::
 	The value to show as repository description. Default value: none.
+
+repo.desc-html::
+	Optional additional raw html to show in the header after repo.desc.
+	Default value: none.  It's possible to leave repo.desc undefined,
+	and just define repo.desc-html.  But it would mean the repo name
+	in the cgit repo list page will show the html parts.  Depending on
+	the html, it may be preferable to define repo.desc so the repo list
+	can just use that and leave out the html.
 
 repo.email-filter::
 	Override the default email-filter. Default value: none. See also:

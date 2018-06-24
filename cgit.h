@@ -81,6 +81,7 @@ struct cgit_repo {
 	char *name;
 	char *path;
 	char *desc;
+	char *desc_html;
 	char *owner;
 	char *homepage;
 	char *defbranch;
@@ -208,6 +209,7 @@ struct cgit_config {
 	char *robots;
 	char *root_title;
 	char *root_desc;
+	char *root_desc_html;
 	char *root_readme;
 	char *script_name;
 	char *section;

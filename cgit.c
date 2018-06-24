@@ -52,6 +52,8 @@ static void repo_config(struct cgit_repo *repo, const char *name, const char *va
 		repo->clone_url = xstrdup(value);
 	else if (!strcmp(name, "desc"))
 		repo->desc = xstrdup(value);
+	else if (!strcmp(name, "desc-html"))
+		repo->desc_html = xstrdup(value);
 	else if (!strcmp(name, "owner"))
 		repo->owner = xstrdup(value);
 	else if (!strcmp(name, "homepage"))
@@ -142,6 +144,8 @@ static void config_cb(const char *name, const char *value)
 		ctx.cfg.root_title = xstrdup(value);
 	else if (!strcmp(name, "root-desc"))
 		ctx.cfg.root_desc = xstrdup(value);
+	else if (!strcmp(name, "root-desc-html"))
+		ctx.cfg.root_desc_html = xstrdup(value);
 	else if (!strcmp(name, "root-readme"))
 		ctx.cfg.root_readme = xstrdup(value);
 	else if (!strcmp(name, "css"))
