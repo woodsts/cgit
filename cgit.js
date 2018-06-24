@@ -8,6 +8,8 @@
 
 (function () {
 
+var burger, menu_popup;
+
 function collect_offsetTop(e1)
 {
 	var t = 0;
@@ -29,7 +31,15 @@ function find_parent_of_type(e, type)
 	return e;
 }
 
-function line_range_highlight()
+/*
+ * This creates an absolute div as a child of the content table.
+ * It's horizontally and vertically aligned and sized according
+ * to the #URL information like #n123-456
+ * 
+ * If the highlight div already exists, it's removed and remade.
+ */
+
+function line_range_highlight(do_burger)
 {
 	var h = window.location.hash, l1 = 0, l2 = 0, e, t;
 
@@ -39,7 +49,8 @@ function line_range_highlight()
 		while (l1 <= e.l2) {
 			var e1;
 			e1 = document.getElementById('n' + l1++);
-			e1.style.backgroundColor = null;
+				e1.classList.remove(
+					'selected-line-link-highlight');
 		}
 
 		e.remove();
@@ -63,6 +74,9 @@ function line_range_highlight()
 	if (!e)
 		return;
 
+	if (do_burger)
+		burger_create(e);
+
 	de = document.createElement("DIV");
 
 	de.className = "selected-lines";
@@ -77,10 +91,8 @@ function line_range_highlight()
 
 	de.style.width = etr.offsetWidth + 'px';
 
-	/* the table is offset from the left, the highlight
-	 * needs to follow it */
+	/* the table is offset from the left, the highlight needs to follow it */
 	etable = find_parent_of_type(etr, "table");
-
 	de.style.left = etable.offsetLeft + 'px';
 	de.style.height = ((l2 - l1 + 1) * e.offsetHeight) + 'px';
 
@@ -92,7 +104,8 @@ function line_range_highlight()
 
 	n = l1;
 	while (n <= l2)
-		document.getElementById('n' + n++).style.backgroundColor = "yellow";
+		document.getElementById('n' + n++).classList.add(
+					'selected-line-link-highlight');
 
 	hl = (window.innerHeight / (e.offsetHeight + 1));
 	v = (l1 + ((l2 - l1) / 2)) - (hl / 2);
@@ -108,15 +121,184 @@ function line_range_highlight()
 	t.scrollIntoView(true);
 }
 
-function line_range_click(e) {
-	var t, m, n = window.location.href.length - window.location.hash.length;
+function copy_clipboard(value)
+{
+	var inp = document.createElement("textarea");
+	var e = document.getElementById("linenumbers");
 
-	/* disable passthru to stop needless scrolling by default browser #URL handler */
+	inp.type = "text";
+	inp.value = value;
+	/* hidden style stops it working for clipboard */
+	inp.setAttribute('readonly', '');
+	inp.style.position = "absolute";
+	inp.style.left = "-1000px";
+
+	e.appendChild(inp);
+
+	inp.select();
+
+	document.execCommand("copy");
+
+	inp.remove();
+}
+
+/*
+ * An element in the popup menu was clicked, perform the appropriate action
+ */
+function mi_click(e) {
+	var u, n;
+
 	e.stopPropagation();
 	e.preventDefault();
 
+	switch (e.target.id) {
+	case "mi-c-line":
+		/* implemented in next patch */
+		break;
+	case "mi-c-link":
+		copy_clipboard(window.location.href);
+		break;
+	case "mi-c-blame":
+		u = window.location.href;
+		t = u.indexOf("/tree/");
+		if (t)
+			window.location = u.substring(0, t) + "/blame/" +
+				u.substring(t + 6);
+		break;
+	case "mi-c-tree":
+		u = window.location.href;
+		t = u.indexOf("/blame/");
+		if (t)
+			window.location = u.substring(0, t) + "/tree/" +
+				u.substring(t + 7);
+		break;
+	}
+
+	if (!menu_popup)
+		return;
+
+	menu_popup.remove();
+	menu_popup = null;
+}
+
+/* We got a click on the (***) burger menu */
+
+function burger_click(e) {
+	var e1 = e, etable, d = new Date, s = "", n, is_blame,
+	    ar = new Array("mi-c-line", "mi-c-link", "mi-c-blame", "mi-c-tree"),
+	    an = new Array("Copy Lines", "Copy Link",
+			   "View Blame", /* 2: shown in /tree/ */
+			   "Remove Blame" /* 3: shown in /blame/ */);
+
+	e.preventDefault();
+
+	if (menu_popup) {
+		menu_popup.remove();
+		menu_popup = null;
+
+		return;
+	}
+
+	/*
+	 * Create the popup menu
+	 */
+
+	is_blame = !!document.getElementsByClassName("hashes").length;
+
+	menu_popup = document.createElement("DIV");
+	menu_popup.className = "popup-menu";
+	menu_popup.style.top = collect_offsetTop(e1) + e.offsetHeight + "px";
+
+	s = "<ul id='menu-ul'>";
+	for (n = 0; n < an.length; n++)
+		if (n < 2 || is_blame == (n == 3))
+			s += "<li id='" + ar[n] + "' tabindex='" + n + "'>" +
+				an[n] + "</li>";
+		    
+	menu_popup.innerHTML = s;
+
+	burger.insertBefore(menu_popup, null);
+
+        document.getElementById(ar[0]).focus();
+	for (n = 0; n < an.length; n++)
+		if (n < 2 || is_blame == (n == 3))
+			document.getElementById(ar[n]).
+				addEventListener("click", mi_click);
+				
+	setTimeout(function() {
+		menu_popup.style.opacity = "1";
+	}, 1);
+
+	/* detect loss of focus for popup menu */
+	menu_popup.addEventListener("focusout", function(e) {
+		/* if focus went to a child (menu item), ignore */
+		if (e.relatedTarget &&
+		    e.relatedTarget.parentNode.id == "menu-ul")
+			return;
+
+		menu_popup.remove();
+		menu_popup = null;
+	});
+}
+
+function burger_create(e)
+{
+	var e1 = e, etable, d = new Date;
+
+	if (burger)
+		burger.remove();
+
+	burger = document.createElement("DIV");
+	burger.className = "selected-lines-popup";
+	burger.style.top = collect_offsetTop(e1) + "px";
+
+	/* event listener cannot override default browser #URL behaviour */
+	burger.onclick = burger_click;
+
+	etable = find_parent_of_type(e, "table");
+	etable.insertBefore(burger, etable.firstChild);
+	burger_time = d.getTime();
+
+	setTimeout(function() {
+		burger.style.opacity = "1";
+	}, 1);
+}
+
+/*
+ * We got a click on a line number #url
+ *
+ * Create the "burger" menu there.
+ *
+ * Redraw the line range highlight accordingly.
+ */
+
+function line_range_click(e) {
+	var t, elem, m, n = window.location.href.length -
+			    window.location.hash.length;
+
+	/* disable passthru to stop scrolling by browser #URL handler */
+	e.stopPropagation();
+	e.preventDefault();
+
+	if (!e.target.id)
+		return;
+
+	if (menu_popup) {
+		menu_popup.remove();
+		menu_popup = null;
+
+		return;
+	}
+
+	elem = document.getElementById(e.target.id);
+	if (!elem)
+		return;
+
+	burger_create(elem);
+
 	if (!window.location.hash ||
-	    window.location.hash.indexOf("-") >= 0)
+	    window.location.hash.indexOf("-") >= 0 ||
+	    e.target.id.substring(1) == window.location.href.substring(n + 2))
 		t = window.location.href.substring(0, n) +
 		    '#n' + e.target.id.substring(1);
 	else {
@@ -131,12 +313,12 @@ function line_range_click(e) {
 
 	window.history.replaceState(null, null, t);
 
-	line_range_highlight();
+	line_range_highlight(0);
 }
 
 /* we have to use load, because header images can push the layout vertically */
 window.addEventListener("load", function() {
-	line_range_highlight();
+	line_range_highlight(1);
 }, false);
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -148,7 +330,7 @@ document.addEventListener("DOMContentLoaded", function() {
 }, false);
 
 window.addEventListener("hashchange", function() {
-	line_range_highlight();
+	line_range_highlight(1);
 }, false);
 
 })();

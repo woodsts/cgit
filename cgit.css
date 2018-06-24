@@ -382,7 +382,76 @@ div#cgit div.selected-lines {
 	pointer-events: none;
 	z-index: 1;
 	background-color: rgba(255, 255, 0, 0);
-	transition: background-color 1.5s;
+	transition: background-color 0.5s;
+}
+
+div#cgit div.selected-line-link-highlight {
+	background-color: yellow;
+}
+
+div#cgit div.selected-lines-popup {
+	position: absolute;
+	text-align: center;
+	font-size: 6px;
+	font-color: black;
+	left: 6px;
+	width: 24px;
+	height: 12px;
+	opacity: 0;
+	z-index: 2;
+	padding-top: 4px;
+	padding-bottom: 0px;
+	cursor: pointer;
+	filter: grayscale(100%);
+	border: 1px solid gray;
+	border-radius: 3px;
+	background-color: rgba(255, 255, 255, 0.0);
+	transition: opacity 0.5s;
+}
+
+div#cgit div.selected-lines-popup:before {
+	content: "\26AB\26AB\26AB";
+}
+
+div#cgit div.popup-menu {
+    display: inline-block;
+	position: relative;
+	text-align: left;
+	font-size: 12px;
+	color: black;
+	left: 8px;
+	opacity: 0;
+	z-index: 3;
+	margin: 3px;
+	padding: 3px;
+	cursor: pointer;
+	border: 1px solid gray;
+	border-radius: 3px;
+	background-color: white;
+	white-space: nowrap;
+	box-shadow: 0px 5px 15px gray;
+	transition: opacity 0.3s;
+}
+
+div#cgit div.popup-menu ul {
+	list-style-type: none;
+	left: 0;
+	margin: 3px;
+	padding: 3px;
+}
+
+div#cgit div.popup-menu li {
+	margin: 3px;
+	padding: 3px;
+	font-size: 14px;
+}
+
+div#cgit div.popup-menu li:active {
+	margin: 3px;
+	padding: 3px;
+	font-size: 14px;
+	background-color: blue;
+	color: white;
 }
 
 div#cgit table.bin-blob {
