@@ -108,9 +108,43 @@ function line_range_highlight()
 	t.scrollIntoView(true);
 }
 
+function line_range_click(e) {
+	var t, m, n = window.location.href.length - window.location.hash.length;
+
+	/* disable passthru to stop needless scrolling by default browser #URL handler */
+	e.stopPropagation();
+	e.preventDefault();
+
+	if (!window.location.hash ||
+	    window.location.hash.indexOf("-") >= 0)
+		t = window.location.href.substring(0, n) +
+		    '#n' + e.target.id.substring(1);
+	else {
+		if (parseInt(window.location.hash.substring(2)) <
+		    parseInt(e.target.id.substring(1)))  /* forwards */
+			t = window.location + '-' + e.target.id.substring(1);
+		else
+			t = window.location.href.substring(0, n) +
+				'#n' + e.target.id.substring(1) + '-' +
+				window.location.href.substring(n + 2);
+	}
+
+	window.history.replaceState(null, null, t);
+
+	line_range_highlight();
+}
+
 /* we have to use load, because header images can push the layout vertically */
 window.addEventListener("load", function() {
 	line_range_highlight();
+}, false);
+
+document.addEventListener("DOMContentLoaded", function() {
+	/* event listener cannot override default #URL browser processing,
+	 * requires onclick */
+	var e = document.getElementById("linenumbers");
+	if (e)
+		e.onclick = line_range_click;
 }, false);
 
 window.addEventListener("hashchange", function() {

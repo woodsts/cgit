@@ -170,7 +170,7 @@ static void print_object(const struct object_id *oid, const char *path,
 
 	/* Line numbers */
 	if (ctx.cfg.enable_tree_linenumbers) {
-		html("<td class='linenumbers'>");
+		html("<td id='linenumbers' class='linenumbers'>");
 		for (ent = sb.ent; ent; ent = ent->next) {
 			html("<div class='alt'><pre>");
 			emit_blame_entry_linenumber(ent);
