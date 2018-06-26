@@ -206,7 +206,7 @@ static const char *get_ref_from_filename(const struct cgit_repo *repo,
 					 const char *filename,
 					 const struct cgit_snapshot_format *format)
 {
-	const char *reponame;
+	char *reponame = NULL;
 	struct object_id oid;
 	struct strbuf snapshot = STRBUF_INIT;
 	int result = 1;
@@ -215,9 +215,12 @@ static const char *get_ref_from_filename(const struct cgit_repo *repo,
 	strbuf_setlen(&snapshot, snapshot.len - strlen(format->suffix));
 
 	if (get_oid(snapshot.buf, &oid) == 0)
-		goto out;
+		goto out1;
 
 	reponame = cgit_snapshot_prefix(repo);
+	if (!reponame)
+		goto out1;
+
 	if (starts_with(snapshot.buf, reponame)) {
 		const char *new_start = snapshot.buf;
 		new_start += strlen(reponame);
@@ -241,6 +244,8 @@ static const char *get_ref_from_filename(const struct cgit_repo *repo,
 	strbuf_release(&snapshot);
 
 out:
+	free(reponame);
+out1:
 	return result ? strbuf_detach(&snapshot, NULL) : NULL;
 }
 
@@ -288,7 +293,15 @@ void cgit_print_snapshot(const char *head, const char *hex,
 		hex = head;
 
 	if (!prefix)
-		prefix = xstrdup(cgit_snapshot_prefix(ctx.repo));
+		prefix = cgit_snapshot_prefix(ctx.repo);
+
+	if (!prefix) {
+		cgit_print_error_page(500, "Internal Server Error",
+				"Bad repo name");
+
+		goto out1;
+	}
+
 
 	if (sig_filename)
 		write_sig(f, hex, filename, sig_filename);
@@ -296,5 +309,7 @@ void cgit_print_snapshot(const char *head, const char *hex,
 		make_snapshot(f, hex, prefix, filename);
 
 	free(prefix);
+
+out1:
 	free(adj_filename);
 }

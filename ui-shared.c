@@ -127,35 +127,40 @@ char *cgit_pageurl(const char *reponame, const char *pagename,
 	return cgit_fileurl(reponame, pagename, NULL, query);
 }
 
-const char *cgit_repobasename(const char *reponame)
+/* result is NULL or must be freed */
+static char *cgit_repobasename(const char *reponame)
 {
-	/* I assume we don't need to store more than one repo basename */
-	static char rvbuf[1024];
-	int p;
-	const char *rv;
-	strncpy(rvbuf, reponame, sizeof(rvbuf));
-	if (rvbuf[sizeof(rvbuf)-1])
-		die("cgit_repobasename: truncated repository name '%s'", reponame);
-	p = strlen(rvbuf)-1;
-	/* strip trailing slashes */
-	while (p && rvbuf[p] == '/') rvbuf[p--] = 0;
-	/* strip trailing .git */
-	if (p >= 3 && starts_with(&rvbuf[p-3], ".git")) {
-		p -= 3; rvbuf[p--] = 0;
-	}
-	/* strip more trailing slashes if any */
-	while ( p && rvbuf[p] == '/') rvbuf[p--] = 0;
-	/* find last slash in the remaining string */
-	rv = strrchr(rvbuf,'/');
-	if (rv)
-		return ++rv;
-	return rvbuf;
+	int last = strlen(reponame) - 1, n;
+	char *rv;
+
+	if (last < 1)
+		return NULL;
+
+	while (last && reponame[last] == '/')
+		last--;
+
+	if (last >= 3 && !strncmp(&reponame[last - 3], ".git", 3))
+		last -= 3;
+
+	while (last && reponame[last] == '/')
+		last--;
+
+	n = last;
+	while (n && reponame[n] != '/')
+		n--;
+
+	rv = xmalloc(last - n + 2);
+	strncpy(rv, &reponame[n], last - n + 1);
+	rv[last - n + 1] = '\0';
+
+	return rv;
 }
 
-const char *cgit_snapshot_prefix(const struct cgit_repo *repo)
+/* result is NULL or must be freed */
+char *cgit_snapshot_prefix(const struct cgit_repo *repo)
 {
 	if (repo->snapshot_prefix)
-		return repo->snapshot_prefix;
+		return xstrdup(repo->snapshot_prefix);
 
 	return cgit_repobasename(repo->url);
 }

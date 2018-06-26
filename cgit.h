@@ -369,8 +369,6 @@ extern struct commitinfo *cgit_parse_commit(struct commit *commit);
 extern struct taginfo *cgit_parse_tag(struct tag *tag);
 extern void cgit_parse_url(const char *url);
 
-extern const char *cgit_repobasename(const char *reponame);
-
 extern int cgit_parse_snapshots_mask(const char *str);
 extern const struct object_id *cgit_snapshot_get_sig(const char *ref,
 						     const struct cgit_snapshot_format *f);
