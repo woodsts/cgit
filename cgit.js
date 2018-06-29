@@ -31,6 +31,25 @@ function find_parent_of_type(e, type)
 	return e;
 }
 
+function parse_hashurl_start(h)
+{
+	return parseInt(h.substring(2));
+}
+
+function parse_hashurl_end(h, start)
+{
+	var t = h.indexOf("-"), e = start;
+
+	if (t >= 1)
+		e = parseInt(h.substring(t + 1));
+
+	if (e < start)
+		e = start;
+
+	return e;
+}
+
+
 /*
  * This creates an absolute div as a child of the content table.
  * It's horizontally and vertically aligned and sized according
@@ -56,17 +75,11 @@ function line_range_highlight(do_burger)
 		e.remove();
 	}
 
-	l1 = parseInt(h.substring(2));
+	l1 = parse_hashurl_start(h);
 	if (!l1)
 		return;
 
-	t = h.indexOf("-");
-	l2 = l1;
-	if (t >= 1)
-		l2 = parseInt(h.substring(t + 1));
-
-	if (l2 < l1)
-		l2 = l1;
+	l2 = parse_hashurl_end(h, l1);
 
 	var lh, etable, etr, de, n, hl, v;
 
@@ -142,18 +155,36 @@ function copy_clipboard(value)
 	inp.remove();
 }
 
+/* we want to copy plain text for a line range */
+
+function copy_text(elem, l1, l2)
+{
+	var tc = elem.textContent.split('\n'), s = "";
+
+	l1 --;
+
+	while (l1 < l2)
+		s += tc[l1++] + '\n';
+
+	copy_clipboard(s);
+}
+
+
 /*
  * An element in the popup menu was clicked, perform the appropriate action
  */
 function mi_click(e) {
-	var u, n;
+	var u, n, l1, l2, el;
 
 	e.stopPropagation();
 	e.preventDefault();
 
 	switch (e.target.id) {
 	case "mi-c-line":
-		/* implemented in next patch */
+		l1 = parse_hashurl_start(window.location.hash);
+		l2 = parse_hashurl_end(window.location.hash, l1);
+		el = document.getElementsByClassName("highlight")[0].firstChild;
+		copy_text(el, l1, l2);
 		break;
 	case "mi-c-link":
 		copy_clipboard(window.location.href);
