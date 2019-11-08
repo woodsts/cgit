@@ -87,6 +87,10 @@ mkrepo() {
 			git commit -m "add a+b"
 			git branch "1+2"
 		fi
+		if test "$3" = "gc"
+		then
+			git gc -q
+		fi
 	)
 }
 
@@ -95,7 +99,7 @@ setup_repos()
 	rm -rf cache
 	mkdir -p cache
 	mkrepo repos/foo 5 >/dev/null
-	mkrepo repos/bar 50 >/dev/null
+	mkrepo repos/bar 50 gc >/dev/null
 	mkrepo repos/foo+bar 10 testplus >/dev/null
 	mkrepo "repos/with space" 2 >/dev/null
 	mkrepo repos/filter 5 testplus >/dev/null
