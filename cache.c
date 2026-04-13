@@ -185,6 +185,8 @@ static int lock_slot(struct cache_slot *slot)
 		slot->lock_fd = -1;
 		return saved_errno;
 	}
+	if (ftruncate(slot->lock_fd, 0) < 0)
+		return errno;
 	if (xwrite(slot->lock_fd, slot->key, slot->keylen + 1) < 0)
 		return errno;
 	return 0;
